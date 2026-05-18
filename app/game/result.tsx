@@ -4,35 +4,60 @@ import { colors, spacing, radius } from "../../src/constants/theme";
 
 export default function ResultScreen() {
   const router = useRouter();
-  const { score, correct, total } = useLocalSearchParams();
+  const { score, correct, total, xpEarned, maxCombo } = useLocalSearchParams<{
+    score: string; correct: string; total: string; xpEarned: string; maxCombo: string;
+  }>();
+
+  const pct = Math.round((Number(correct) / Number(total)) * 100);
+  const emoji = pct === 100 ? "🏆" : pct >= 70 ? "🎉" : pct >= 40 ? "💪" : "📚";
+  const msg = pct === 100 ? "¡Perfecto!" : pct >= 70 ? "¡Muy bien!" : pct >= 40 ? "¡Sigue practicando!" : "¡A estudiar más!";
 
   return (
     <View style={styles.container}>
-      <Text style={styles.emoji}>🎉</Text>
-      <Text style={styles.score}>{score} pts</Text>
-      <Text style={styles.detail}>{correct}/{total} respuestas correctas</Text>
-      <View style={styles.xpBox}>
-        <Text style={styles.xpText}>+{Number(correct) * 10} XP ganados</Text>
+      <Text style={styles.emoji}>{emoji}</Text>
+      <Text style={styles.msg}>{msg}</Text>
+
+      <View style={styles.statsBox}>
+        <Stat label="Puntaje" value={score} highlight />
+        <Stat label="Correctas" value={`${correct}/${total}`} />
+        <Stat label="Precisión" value={`${pct}%`} />
+        <Stat label="Mejor combo" value={`x${maxCombo}`} />
+        <Stat label="XP ganado" value={`+${xpEarned}`} highlight />
       </View>
-      <TouchableOpacity style={styles.button} onPress={() => router.replace("/play")}>
-        <Text style={styles.buttonText}>Jugar de nuevo</Text>
-      </TouchableOpacity>
-      <TouchableOpacity style={styles.buttonSecondary} onPress={() => router.replace("/")}>
-        <Text style={styles.buttonSecondaryText}>Ir al inicio</Text>
-      </TouchableOpacity>
+
+      <View style={styles.actions}>
+        <TouchableOpacity style={styles.primaryBtn} onPress={() => router.back()}>
+          <Text style={styles.primaryBtnText}>Jugar de nuevo 🔄</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.secondaryBtn} onPress={() => router.replace("/(tabs)")}>
+          <Text style={styles.secondaryBtnText}>Volver al inicio</Text>
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
+}
+
+function Stat({ label, value, highlight }: { label: string; value: string; highlight?: boolean }) {
+  return (
+    <View style={styles.stat}>
+      <Text style={styles.statLabel}>{label}</Text>
+      <Text style={[styles.statValue, highlight && styles.statValueHighlight]}>{value}</Text>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.background, alignItems: "center", justifyContent: "center", padding: spacing.lg },
-  emoji: { fontSize: 60, marginBottom: spacing.md },
-  score: { fontSize: 48, fontWeight: "800", color: colors.primary, marginBottom: spacing.sm },
-  detail: { fontSize: 18, color: colors.textSecondary, marginBottom: spacing.lg },
-  xpBox: { backgroundColor: colors.surface, paddingVertical: spacing.sm, paddingHorizontal: spacing.lg, borderRadius: radius.xl, marginBottom: spacing.xl },
-  xpText: { fontSize: 16, color: colors.xpBar, fontWeight: "700" },
-  button: { backgroundColor: colors.primary, paddingVertical: spacing.md, paddingHorizontal: spacing.xl * 2, borderRadius: radius.xl, marginBottom: spacing.md },
-  buttonText: { color: colors.text, fontSize: 16, fontWeight: "700" },
-  buttonSecondary: { paddingVertical: spacing.sm },
-  buttonSecondaryText: { color: colors.textSecondary, fontSize: 14 },
+  container: { flex: 1, backgroundColor: colors.background, padding: spacing.lg, alignItems: "center", justifyContent: "center" },
+  emoji: { fontSize: 80, marginBottom: spacing.md },
+  msg: { fontSize: 30, fontWeight: "800", color: colors.text, marginBottom: spacing.xl },
+  statsBox: { width: "100%", backgroundColor: colors.surface, borderRadius: radius.lg, padding: spacing.lg, borderWidth: 1, borderColor: colors.border, gap: spacing.md, marginBottom: spacing.xl },
+  stat: { flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
+  statLabel: { fontSize: 15, color: colors.textSecondary },
+  statValue: { fontSize: 18, fontWeight: "700", color: colors.text },
+  statValueHighlight: { color: colors.xpBar },
+  actions: { width: "100%", gap: spacing.md },
+  primaryBtn: { backgroundColor: colors.primary, padding: spacing.md + 2, borderRadius: radius.xl, alignItems: "center" },
+  primaryBtnText: { color: colors.text, fontWeight: "800", fontSize: 17 },
+  secondaryBtn: { backgroundColor: colors.surface, padding: spacing.md + 2, borderRadius: radius.xl, alignItems: "center", borderWidth: 1, borderColor: colors.border },
+  secondaryBtnText: { color: colors.text, fontWeight: "600", fontSize: 17 },
 });
