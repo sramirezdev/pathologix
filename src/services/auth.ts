@@ -1,4 +1,5 @@
 import auth from "@react-native-firebase/auth";
+import { GoogleSignin } from "@react-native-google-signin/google-signin";
 import firestore from "@react-native-firebase/firestore";
 
 export type UserRole = "jugador" | "creador" | "moderador" | "admin";
@@ -19,6 +20,41 @@ export interface AppUser {
   totalCorrect: number;
   totalAnswered: number;
 }
+
+export const initGoogleSignIn = () => {
+  GoogleSignin.configure({
+    webClientId: "104739044806-web-client-id.apps.googleusercontent.com", // reemplazar con el real
+  });
+};
+
+export const signInWithGoogle = async () => {
+  await GoogleSignin.hasPlayServices();
+  const { idToken } = await GoogleSignin.signIn();
+  const googleCredential = auth.GoogleAuthProvider.credential(idToken);
+  const cred = await auth().signInWithCredential(googleCredential);
+  
+  // Si es nuevo usuario, crear documento en Firestore
+  const existing = await getAppUser(cred.user.uid);
+  if (!existing) {
+    await firestore().collection("users").doc(cred.user.uid).set({
+      displayName: cred.user.displayName || "Usuario",
+      email: cred.user.email || "",
+      role: "jugador",
+      profile: "curioso",
+      xp: 0,
+      level: 1,
+      streak: 0,
+      lastPlayedDate: "",
+      achievements: [],
+      isPremium: false,
+      weeklyScore: 0,
+      totalCorrect: 0,
+      totalAnswered: 0,
+      createdAt: firestore.FieldValue.serverTimestamp(),
+    });
+  }
+  return cred;
+};
 
 export const signIn = async (email: string, password: string) => {
   return auth().signInWithEmailAndPassword(email, password);

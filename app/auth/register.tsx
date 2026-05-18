@@ -2,7 +2,8 @@ import { useState } from "react";
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, Alert, ActivityIndicator, KeyboardAvoidingView, Platform, ScrollView } from "react-native";
 import { useRouter } from "expo-router";
 import { colors, spacing, radius } from "../../src/constants/theme";
-import { signUp, getAppUser } from "../../src/services/auth";
+import { signUp, signInWithGoogle, getAppUser } from "../../src/services/auth";
+import { GoogleSignInButton } from "../../src/components/GoogleSignInButton";
 import { useUserStore } from "../../src/store/useUserStore";
 
 const PROFILES = [
@@ -21,6 +22,21 @@ export default function RegisterScreen() {
   const [profile, setProfile] = useState("");
   const [loading, setLoading] = useState(false);
   const [showPass, setShowPass] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
+
+  const handleGoogle = async () => {
+    setGoogleLoading(true);
+    try {
+      const cred = await signInWithGoogle();
+      const appUser = await getAppUser(cred.user.uid);
+      if (appUser) setUser(appUser);
+      router.replace("/(tabs)");
+    } catch (e) {
+      Alert.alert("Error", "No se pudo continuar con Google.");
+    } finally {
+      setGoogleLoading(false);
+    }
+  };
 
   const handleNext = () => {
     if (!name.trim()) return Alert.alert("Error", "Ingresa tu nombre.");
@@ -101,6 +117,13 @@ export default function RegisterScreen() {
           <Text style={styles.primaryBtnText}>Continuar →</Text>
         </TouchableOpacity>
 
+        <View style={styles.dividerRow}>
+          <View style={styles.dividerLine} />
+          <Text style={styles.dividerText}>o</Text>
+          <View style={styles.dividerLine} />
+        </View>
+        <GoogleSignInButton onPress={handleGoogle} loading={googleLoading} />
+        <View style={{ height: spacing.md }} />
         <TouchableOpacity onPress={() => router.push("/auth/login")}>
           <Text style={styles.linkText}>¿Ya tienes cuenta? <Text style={styles.linkHighlight}>Inicia sesión</Text></Text>
         </TouchableOpacity>
@@ -130,4 +153,7 @@ const styles = StyleSheet.create({
   profileIcon: { fontSize: 28 },
   profileLabel: { flex: 1, fontSize: 16, fontWeight: "600", color: colors.text },
   checkIcon: { color: colors.primary, fontSize: 18, fontWeight: "700" },
+  dividerRow: { flexDirection: "row", alignItems: "center", marginVertical: spacing.md },
+  dividerLine: { flex: 1, height: 1, backgroundColor: colors.border },
+  dividerText: { color: colors.textSecondary, marginHorizontal: spacing.md, fontSize: 13 },
 });
