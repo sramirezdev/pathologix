@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "104739044806",
+    "project_id": "pathologix-4b5ba",
+    "storage_bucket": "pathologix-4b5ba.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:104739044806:android:9e5f1ba06889c3ab0c46c7",
+        "android_client_info": {
+          "package_name": "com.pathologix.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBPEJD2ipNYlh30BR4MA6Q4A69JQupkadE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
