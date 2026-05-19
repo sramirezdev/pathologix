@@ -23,7 +23,7 @@ export interface AppUser {
 
 export const initGoogleSignIn = () => {
   GoogleSignin.configure({
-    webClientId: "104739044806-web-client-id.apps.googleusercontent.com", // reemplazar con el real
+    webClientId: "104739044806-ddu91ci6i8fm6qpguctamjp0dptc39so.apps.googleusercontent.com", // reemplazar con el real
   });
 };
 
